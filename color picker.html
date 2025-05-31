@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Color Picker - All-in-One Tool</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- iRo.js for Color Wheel -->
+    <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
+    <!-- ColorThief.js for Image Color Extraction -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.2/color-thief.umd.js"></script>
+
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #5a75f5;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --light: #f8f9fa;
+            --dark: #121826;
+            --darker: #0a0f1a;
+            --gray: #718096;
+            --light-gray: #e2e8f0;
+            --success: #48bb78;
+            --warning: #ecc94b;
+            --danger: #e53e3e;
+            --card-bg: #ffffff;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --body-bg: #f0f4f8;
+            --text-color: #1a202c;
+            --input-bg: #ffffff;
+            --border-color: #cbd5e0;
+            --result-bg: #f0f7ff;
+            --transition: all 0.3s ease;
+            --footer-bg: #f0f4f8;
+            --footer-color: #718096;
+        }
+
+        .dark-mode {
+            --primary: #5a75f5;
+            --primary-light: #6d86ff;
+            --secondary: #4d46c1;
+            --accent: #5ca5f5;
+            --light: #2d3748;
+            --dark: #e2e8f0;
+            --darker: #f8f9fa;
+            --gray: #a0aec0;
+            --light-gray: #4a5568;
+            --card-bg: #1a202c;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --body-bg: #121826;
+            --text-color: #e2e8f0;
+            --input-bg: #2d3748;
+            --border-color: #4a5568;
+            --result-bg: #1e293b;
+            --footer-bg: #0a0f1a;
+            --footer-color: #a0aec0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            background: var(--body-bg);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--card-shadow);
+        }
+
+        .logo-icon i {
+            font-size: 24px;
+            color: white;
+        }
+
+        .logo h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .mode-toggle {
+            width: 60px;
+            height: 30px;
+            background: var(--light-gray);
+            border-radius: 15px;
+            position: relative;
+            cursor: pointer;
+            border: none;
+            outline: none;
+        }
+
+        .mode-toggle:after {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: var(--transition);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .dark-mode .mode-toggle:after {
+            left: 32px;
+            background: var(--darker);
+        }
+
+        .mode-toggle i {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            color: var(--text-color);
+        }
+
+        .mode-toggle .sun {
+            left: 7px;
+        }
+
+        .mode-toggle .moon {
+            right: 7px;
+        }
+
+        .home-btn, .lang-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--card-bg);
+            border: none;
+            border-radius: 50px;
+            color: var(--text-color);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--card-shadow);
+            text-decoration: none;
+        }
+
+        .home-btn:hover, .lang-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .lang-buttons {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .lang-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 20px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--card-shadow);
+            font-size: 14px;
+        }
+
+        .lang-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .lang-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background: var(--card-bg);
+            border-radius: 50px;
+            padding: 5px;
+            margin-bottom: 30px;
+            box-shadow: var(--card-shadow);
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: transparent;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: var(--text-color);
+            min-width: 120px;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: var(--light-gray);
+        }
+
+        /* Tool Content (renamed from calculator-content) */
+        .tool-content {
+            display: grid;
+            /* grid-template-columns: 1fr 1fr; */ /* Start with single column for color picker */
+            grid-template-columns: 1fr;
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 900px) {
+            .tool-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .tool-card { /* Renamed from calculator-card */
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--card-shadow);
+            display: none; /* Hide all by default */
+        }
+
+        .tool-card.active {
+            display: block; /* Show active tool */
+        }
+
+        .tool-header { /* Renamed from calculator-header */
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tool-header h2 {
+            font-size: 24px;
+            color: var(--text-color);
+        }
+
+        .tool-header i {
+            font-size: 24px;
+            color: var(--primary);
+        }
+
+        /* Inputs and Buttons (reusing some calculator styles) */
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .input-group input[type="file"],
+        .input-group input[type="text"] {
+            width: 100%;
+            padding: 14px;
+            background: var(--input-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 16px;
+            transition: var(--transition);
+            color: var(--text-color);
+        }
+        .input-group input[type="file"] {
+            padding: 10px; /* Specific padding for file input */
+        }
+
+
+        .input-group input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .action-btn { /* Generic button for actions like "Copy" */
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-left: 10px;
+        }
+        .action-btn:hover {
+            background: var(--primary-light);
+        }
+        .action-btn i {
+            margin-right: 5px;
+        }
+
+
+        /* Color Wheel Specific Styles */
+        .wheel-picker-ui {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        .wheel-container {
+            width: 100%;
+            max-width: 300px; /* Adjust as needed */
+            margin: 0 auto;
+        }
+        #colorWheelDemo .IroWheel { /* Target iro.js wheel directly if needed */
+            width: 100% !important;
+            height: auto !important;
+        }
+
+        .selected-color-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 400px; /* Or adjust as needed */
+            justify-content: center;
+        }
+        #selectedColorPreview {
+            width: 60px;
+            height: 60px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+        }
+        #hexColorValue {
+            flex-grow: 1;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        /* Image Color Extractor Specific Styles */
+        #imagePreview {
+            display: block; /* Initially none, changed by JS */
+            max-width: 100%;
+            max-height: 300px;
+            margin: 0 auto 20px auto;
+            border-radius: 8px;
+            border: 2px solid var(--border-color);
+        }
+        #colorPaletteResults {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .color-swatch-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            background: var(--result-bg);
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            width: 150px; /* Adjust as needed */
+        }
+        .swatch-color-box {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color);
+        }
+        .swatch-hex-code {
+            font-weight: 500;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: var(--text-color);
+        }
+        .swatch-copy-btn {
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            margin-top: auto;
+            width: 100%;
+            color: var(--footer-color);
+            background: var(--footer-bg);
+            border-radius: 15px;
+        }
+
+        .contact-email {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+
+        .contact-email a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 600;
+        }
+
+        .contact-email a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .logo { justify-content: center; }
+            .header-controls { width: 100%; justify-content: center; }
+            .tabs { overflow-x: auto; padding: 5px 0; justify-content: flex-start; }
+            .tab-btn { font-size: 14px; padding: 10px 15px; min-width: auto; flex: none; }
+        }
+
+        @media (max-width: 480px) {
+            .logo h1 { font-size: 24px; }
+            .home-btn, .lang-btn { padding: 8px 15px; font-size: 14px; }
+            .tool-card { padding: 20px; }
+            .selected-color-info { flex-direction: column; }
+            #hexColorValue { width: 100%; margin-top:10px; }
+            .action-btn { width: 100%; margin-left:0; margin-top:10px;}
+            .color-swatch-item { width: calc(50% - 10px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-palette"></i> <!-- Changed icon -->
+                </div>
+                <h1 id="appTitle">Color Picker</h1> <!-- Changed title -->
+            </div>
+            <div class="header-controls">
+                <a href="https://smrttoolz.blogspot.com/" class="home-btn" target="_self" id="homeBtn">
+                    <i class="fas fa-home"></i> <span id="homeText">Home</span>
+                </a>
+                
+                <button class="mode-toggle" id="modeToggle">
+                    <i class="fas fa-sun sun"></i>
+                    <i class="fas fa-moon moon"></i>
+                </button>
+                
+                <div class="lang-buttons">
+                    <button class="lang-btn" data-lang="en">EN</button>
+                    <button class="lang-btn" data-lang="fr">FR</button>
+                    <button class="lang-btn" data-lang="ar">ع</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="wheel-picker">
+                <i class="fas fa-swatchbook"></i> <span id="wheelTab">Color Wheel</span>
+            </button>
+            <button class="tab-btn" data-tab="image-analyzer">
+                <i class="fas fa-image"></i> <span id="imageTab">Image Colors</span>
+            </button>
+        </div>
+
+        <!-- Tool Content -->
+        <div class="tool-content">
+            <!-- Color Wheel Picker -->
+            <div class="tool-card active" id="wheel-picker-card">
+                <div class="tool-header">
+                    <h2 id="wheelPickerTitle">Pick a Color</h2>
+                    <i class="fas fa-swatchbook"></i>
+                </div>
+                <div class="wheel-picker-ui">
+                    <div class="wheel-container">
+                        <div id="colorWheelDemo"></div>
+                    </div>
+                    <div class="selected-color-info">
+                        <div id="selectedColorPreview"></div>
+                        <input type="text" id="hexColorValue" readonly>
+                        <button class="action-btn" id="copyHexBtn"><i class="fas fa-copy"></i> <span id="copyBtnText">Copy</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Color Analyzer -->
+            <div class="tool-card" id="image-analyzer-card">
+                <div class="tool-header">
+                    <h2 id="imageAnalyzerTitle">Extract Colors from Image</h2>
+                    <i class="fas fa-image"></i>
+                </div>
+                <div class="input-group">
+                    <label for="imageUpload" id="uploadLabel">Upload Image</label>
+                    <input type="file" id="imageUpload" accept="image/*">
+                </div>
+                <img id="imagePreview" src="#" alt="Image Preview" style="display: none;">
+                 <p id="imageAnalysisStatus" style="text-align: center; margin-bottom: 15px; display:none;"></p>
+                <div id="colorPaletteResults">
+                    <!-- Extracted colors will be appended here by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="contact-email">
+            <span id="contactText">Contact us:</span> 
+            <a href="mailto:smarttools618@gmail.com">smarttools618@gmail.com</a>
+        </div>
+    </footer>
+
+    <script>
+        // Language support
+        const languages = {
+            en: {
+                appTitle: "Color Picker",
+                home: "Home",
+                wheelTab: "Color Wheel",
+                imageTab: "Image Colors",
+                wheelPickerTitle: "Pick a Color",
+                imageAnalyzerTitle: "Extract Colors from Image",
+                uploadLabel: "Upload Image",
+                copyBtnText: "Copy",
+                copiedBtnText: "Copied!",
+                selectFilePrompt: "Please select an image file.",
+                analyzingText: "Analyzing...",
+                noColorsFound: "No distinct colors found or error analyzing image.",
+                colorsFound: "Colors Found:",
+                contactText: "Contact us:",
+            },
+            fr: {
+                appTitle: "Sélecteur de Couleur",
+                home: "Accueil",
+                wheelTab: "Roue Chromatique",
+                imageTab: "Couleurs d'Image",
+                wheelPickerTitle: "Choisir une Couleur",
+                imageAnalyzerTitle: "Extraire les Couleurs d'une Image",
+                uploadLabel: "Télécharger une Image",
+                copyBtnText: "Copier",
+                copiedBtnText: "Copié !",
+                selectFilePrompt: "Veuillez sélectionner un fichier image.",
+                analyzingText: "Analyse en cours...",
+                noColorsFound: "Aucune couleur distincte trouvée ou erreur lors de l'analyse de l'image.",
+                colorsFound: "Couleurs Trouvées :",
+                contactText: "Contactez-nous :",
+            },
+            ar: {
+                appTitle: "منتقي الألوان",
+                home: "الرئيسية",
+                wheelTab: "عجلة الألوان",
+                imageTab: "ألوان الصورة",
+                wheelPickerTitle: "اختر لونًا",
+                imageAnalyzerTitle: "استخراج الألوان من الصورة",
+                uploadLabel: "تحميل صورة",
+                copyBtnText: "نسخ",
+                copiedBtnText: "تم النسخ!",
+                selectFilePrompt: "يرجى تحديد ملف صورة.",
+                analyzingText: "جارٍ التحليل...",
+                noColorsFound: "لم يتم العثور على ألوان مميزة أو خطأ في تحليل الصورة.",
+                colorsFound: "الألوان الموجودة:",
+                contactText: "اتصل بنا:",
+            }
+        };
+
+        let currentLang = 'en';
+        let darkMode = false;
+
+        // DOM Elements
+        const appTitleElem = document.getElementById('appTitle');
+        const homeTextElem = document.getElementById('homeText');
+        const wheelTabElem = document.getElementById('wheelTab');
+        const imageTabElem = document.getElementById('imageTab');
+        const wheelPickerTitleElem = document.getElementById('wheelPickerTitle');
+        const imageAnalyzerTitleElem = document.getElementById('imageAnalyzerTitle');
+        const uploadLabelElem = document.getElementById('uploadLabel');
+        const copyHexBtn = document.getElementById('copyHexBtn');
+        const copyBtnTextElem = document.getElementById('copyBtnText');
+        const contactTextElem = document.getElementById('contactText');
+        const imageAnalysisStatusElem = document.getElementById('imageAnalysisStatus');
+
+
+        function updateLanguage(lang) {
+            currentLang = lang;
+            const langData = languages[lang];
+            
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+
+            appTitleElem.textContent = langData.appTitle;
+            homeTextElem.textContent = langData.home;
+            wheelTabElem.textContent = langData.wheelTab;
+            imageTabElem.textContent = langData.imageTab;
+            wheelPickerTitleElem.textContent = langData.wheelPickerTitle;
+            imageAnalyzerTitleElem.textContent = langData.imageAnalyzerTitle;
+            uploadLabelElem.textContent = langData.uploadLabel;
+            copyBtnTextElem.textContent = langData.copyBtnText; // Reset copy button text
+            contactTextElem.textContent = langData.contactText;
+            // Update status messages if they are currently visible
+            if (imageAnalysisStatusElem.style.display !== 'none') {
+                 if (imageAnalysisStatusElem.dataset.statusKey) {
+                    imageAnalysisStatusElem.textContent = langData[imageAnalysisStatusElem.dataset.statusKey] || imageAnalysisStatusElem.textContent;
+                 }
+            }
+
+
+            // Update any dynamic copy buttons in the palette
+            document.querySelectorAll('.swatch-copy-btn span').forEach(span => {
+                if (span.textContent !== langData.copiedBtnText) { // Don't overwrite "Copied!"
+                    span.textContent = langData.copyBtnText;
+                }
+            });
+
+
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+            localStorage.setItem('selectedLang', lang);
+        }
+
+        document.querySelectorAll('.lang-btn').forEach(button => {
+            button.addEventListener('click', () => updateLanguage(button.dataset.lang));
+        });
+
+        // Dark mode toggle
+        const modeToggle = document.getElementById('modeToggle');
+        modeToggle.addEventListener('click', () => {
+            darkMode = !darkMode;
+            document.body.classList.toggle('dark-mode', darkMode);
+            // iRo.js doesn't have themes, it might need specific CSS overrides if its default look is bad in dark mode
+        });
+
+        // Tab switching functionality
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const toolCards = document.querySelectorAll('.tool-card');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                toolCards.forEach(card => card.classList.remove('active'));
+                const tab = btn.getAttribute('data-tab');
+                document.getElementById(`${tab}-card`).classList.add('active');
+            });
+        });
+
+        // --- Color Wheel Picker ---
+        const colorWheelDemo = document.getElementById('colorWheelDemo');
+        const selectedColorPreview = document.getElementById('selectedColorPreview');
+        const hexColorValueInput = document.getElementById('hexColorValue');
+        
+        let iroColorPicker; // Declare globally to access later if needed
+
+        if (colorWheelDemo) {
+            iroColorPicker = new iro.ColorPicker(colorWheelDemo, {
+                width: 280, // Adjust width as needed
+                color: "#f00", // Initial color
+                borderWidth: 1,
+                borderColor: "#fff",
+                layout: [ // You can customize the layout
+                    { component: iro.ui.Wheel },
+                    { component: iro.ui.Slider, options: { sliderType: 'hue' } },
+                    { component: iro.ui.Slider, options: { sliderType: 'saturation' } },
+                    { component: iro.ui.Slider, options: { sliderType: 'value' } },
+                ]
+            });
+
+            iroColorPicker.on('color:change', function(color) {
+                selectedColorPreview.style.backgroundColor = color.hexString;
+                hexColorValueInput.value = color.hexString.toUpperCase();
+            });
+
+            copyHexBtn.addEventListener('click', () => {
+                copyToClipboard(hexColorValueInput.value, copyBtnTextElem, languages[currentLang].copyBtnText, languages[currentLang].copiedBtnText);
+            });
+        }
+
+        // --- Image Color Analyzer ---
+        const imageUploadInput = document.getElementById('imageUpload');
+        const imagePreview = document.getElementById('imagePreview');
+        const colorPaletteResultsDiv = document.getElementById('colorPaletteResults');
+        const colorThief = new ColorThief();
+
+        if (imageUploadInput) {
+            imageUploadInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                        imagePreview.style.display = 'block';
+                        colorPaletteResultsDiv.innerHTML = ''; // Clear previous results
+                        
+                        imageAnalysisStatusElem.textContent = languages[currentLang].analyzingText;
+                        imageAnalysisStatusElem.dataset.statusKey = 'analyzingText';
+                        imageAnalysisStatusElem.style.display = 'block';
+
+
+                        // Wait for image to be fully loaded in the img tag
+                        imagePreview.onload = () => {
+                            try {
+                                const palette = colorThief.getPalette(imagePreview, 8); // Get 8 dominant colors
+                                if (palette && palette.length > 0) {
+                                    imageAnalysisStatusElem.style.display = 'none';
+                                    displayColorPalette(palette);
+                                } else {
+                                    imageAnalysisStatusElem.textContent = languages[currentLang].noColorsFound;
+                                    imageAnalysisStatusElem.dataset.statusKey = 'noColorsFound';
+                                }
+                            } catch (error) {
+                                console.error("Error getting palette: ", error);
+                                imageAnalysisStatusElem.textContent = languages[currentLang].noColorsFound;
+                                imageAnalysisStatusElem.dataset.statusKey = 'noColorsFound';
+                            }
+                        };
+                         imagePreview.onerror = () => {
+                            imageAnalysisStatusElem.textContent = languages[currentLang].noColorsFound; // Or a specific "image load error"
+                            imageAnalysisStatusElem.dataset.statusKey = 'noColorsFound';
+                        };
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                     imageAnalysisStatusElem.textContent = languages[currentLang].selectFilePrompt;
+                     imageAnalysisStatusElem.dataset.statusKey = 'selectFilePrompt';
+                     imageAnalysisStatusElem.style.display = 'block';
+                     imagePreview.style.display = 'none';
+                     colorPaletteResultsDiv.innerHTML = '';
+                }
+            });
+        }
+
+        function displayColorPalette(palette) {
+            palette.forEach(rgbColor => {
+                const hex = rgbToHex(rgbColor[0], rgbColor[1], rgbColor[2]);
+                
+                const swatchItem = document.createElement('div');
+                swatchItem.className = 'color-swatch-item';
+                
+                const colorBox = document.createElement('div');
+                colorBox.className = 'swatch-color-box';
+                colorBox.style.backgroundColor = hex;
+                
+                const hexCodeP = document.createElement('p');
+                hexCodeP.className = 'swatch-hex-code';
+                hexCodeP.textContent = hex.toUpperCase();
+                
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'action-btn swatch-copy-btn';
+                const copyBtnSpan = document.createElement('span');
+                copyBtnSpan.textContent = languages[currentLang].copyBtnText;
+                copyBtn.innerHTML = `<i class="fas fa-copy"></i> `;
+                copyBtn.appendChild(copyBtnSpan);
+
+                copyBtn.addEventListener('click', () => {
+                    copyToClipboard(hex.toUpperCase(), copyBtnSpan, languages[currentLang].copyBtnText, languages[currentLang].copiedBtnText);
+                });
+                
+                swatchItem.appendChild(colorBox);
+                swatchItem.appendChild(hexCodeP);
+                swatchItem.appendChild(copyBtn);
+                colorPaletteResultsDiv.appendChild(swatchItem);
+            });
+        }
+
+        function rgbToHex(r, g, b) {
+            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        }
+
+        function copyToClipboard(text, buttonTextElement, originalText, copiedText) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalContent = buttonTextElement.textContent;
+                buttonTextElement.textContent = copiedText;
+                setTimeout(() => {
+                    buttonTextElement.textContent = originalText;
+                }, 1500);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('Failed to copy text.');
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('selectedLang');
+            if (savedLang && languages[savedLang]) {
+                currentLang = savedLang;
+            }
+            updateLanguage(currentLang);
+
+            // Set initial dark mode if preferred by system or saved
+            // Example: Check localStorage for a saved theme preference
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                darkMode = true;
+                document.body.classList.add('dark-mode');
+            } else if (savedTheme === 'light') {
+                darkMode = false;
+                document.body.classList.remove('dark-mode');
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                // darkMode = true; // Uncomment to default to system preference
+                // document.body.classList.add('dark-mode');
+            }
+            // Ensure the toggle reflects the initial darkMode state (visual aspect of toggle is CSS driven by body class)
+
+            // Initial color for wheel picker if iroColorPicker is initialized
+             if (iroColorPicker) {
+                const initialColor = iroColorPicker.color;
+                selectedColorPreview.style.backgroundColor = initialColor.hexString;
+                hexColorValueInput.value = initialColor.hexString.toUpperCase();
+            }
+        });
+    </script>
+</body>
+</html>
