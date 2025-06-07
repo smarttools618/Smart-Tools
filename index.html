@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smart Tools</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #ffd600; /* yellow for dark mode */
+      --background: #151a23;
+      --card-bg: #1b2230;
+      --text: #f5f6fa;
+      --accent: #ffea00;
+      --shadow: 0 8px 32px 0 rgba(0,0,0,0.45);
+      --transition: 0.3s cubic-bezier(.4,2,.6,1);
+      --glass: rgba(255,214,0,0.07);
+      --border: 2px solid rgba(255,214,0,0.13);
+      --icon-glow: 0 0 12px #ffd600, 0 0 24px #ffea00;
+    }
+    [data-theme="light"] {
+      --primary: #0059ff;
+      --accent: #00e0ff;
+      --background: #f5f6fa;
+      --card-bg: #fff;
+      --text: #181a1b;
+      --shadow: 0 8px 32px 0 rgba(0,0,0,0.07);
+      --glass: rgba(0,89,255,0.04);
+      --border: 2px solid rgba(0,89,255,0.08);
+      --icon-glow: none;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Montserrat', sans-serif;
+      background: var(--background);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background var(--transition), color var(--transition);
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1rem 4rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 0 1rem 0;
+      position: sticky;
+      top: 0;
+      background: var(--background);
+      z-index: 10;
+      transition: background var(--transition);
+      border-bottom: var(--border);
+      box-shadow: 0 2px 16px 0 rgba(0,188,212,0.04);
+      backdrop-filter: blur(6px);
+    }
+    .logo {
+      font-size: 2.7rem;
+      font-weight: 900;
+      letter-spacing: 2.5px;
+      color: var(--primary);
+      text-shadow: 0 2px 24px #0059ff99, 0 0 8px #00e0ff55;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      transition: color var(--transition), text-shadow var(--transition);
+    }
+    .logo::before {
+      content: "\1F527";
+      font-size: 2.3rem;
+      margin-right: 0.3em;
+      filter: drop-shadow(0 2px 12px #0059ff);
+      text-shadow: var(--icon-glow);
+      animation: iconGlow 2.5s infinite alternate;
+      display: inline-block;
+    }
+    @keyframes iconGlow {
+      0% { filter: drop-shadow(0 0 8px #0059ff); }
+      100% { filter: drop-shadow(0 0 24px #00e0ff); }
+    }
+    .controls {
+      display: flex;
+      gap: 1.1rem;
+      align-items: center;
+    }
+    .lang-btn {
+      background: var(--glass);
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      font-weight: 800;
+      padding: 0.5rem 1.3rem;
+      border-radius: 22px;
+      cursor: pointer;
+      margin-left: 0.2rem;
+      font-size: 1.08rem;
+      letter-spacing: 0.7px;
+      box-shadow: 0 2px 12px 0 #0059ff22;
+      transition: background var(--transition), color var(--transition), border var(--transition), box-shadow var(--transition), transform var(--transition);
+      outline: none;
+      position: relative;
+      overflow: hidden;
+    }
+    .lang-btn.active, .lang-btn:hover {
+      background: #181a1b;
+      color: #fff !important;
+      border-color: var(--primary);
+      box-shadow: 0 4px 24px 0 var(--primary)44;
+      transform: scale(1.07);
+    }
+    [data-theme="light"] .lang-btn.active, [data-theme="light"] .lang-btn:hover {
+      background: #0059ff !important;
+      color: #fff !important;
+      border-color: #0059ff !important;
+      box-shadow: 0 4px 24px 0 #0059ff44 !important;
+      transform: scale(1.07);
+    }
+    .dark-mode-btn {
+      background: var(--card-bg);
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      font-size: 2rem;
+      border-radius: 50%;
+      width: 3.1rem;
+      height: 3.1rem;
+      cursor: pointer;
+      box-shadow: 0 2px 16px 0 #0059ff33;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background var(--transition), color var(--transition), border var(--transition), box-shadow var(--transition), transform var(--transition);
+      outline: none;
+      position: relative;
+      overflow: hidden;
+    }
+    .dark-mode-btn:hover {
+      background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+      color: #181a1b;
+      border-color: var(--primary);
+      box-shadow: 0 4px 32px 0 var(--primary)55;
+      transform: scale(1.08);
+    }
+    #darkModeIcon {
+      transition: color 0.3s, text-shadow 0.3s;
+      text-shadow: 0 0 12px #0059ff, 0 0 24px #00e0ff;
+    }
+    main {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 60vh;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 2.7rem;
+      box-shadow: 0 12px 48px 0 #0059ff22, var(--shadow);
+      padding: 3.2rem 2.5rem 2.7rem 2.5rem;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      animation: cardIn 1.2s cubic-bezier(.4,2,.6,1);
+      border: var(--border);
+      backdrop-filter: blur(10px);
+      transition: box-shadow var(--transition), border var(--transition);
+    }
+    @keyframes cardIn {
+      0% { transform: scale(0.8) rotateY(30deg); opacity: 0; }
+      60% { transform: scale(1.05) rotateY(-10deg); opacity: 1; }
+      100% { transform: scale(1) rotateY(0); }
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: -60px; left: -60px;
+      width: 180px; height: 180px;
+      background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+      opacity: 0.18;
+      z-index: 0;
+      animation: pulse 2.5s infinite alternate;
+    }
+    .card::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; right: -60px;
+      width: 140px; height: 140px;
+      background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+      opacity: 0.13;
+      z-index: 0;
+      animation: pulse2 3s infinite alternate;
+    }
+    @keyframes pulse {
+      0% { opacity: 0.12; transform: scale(1);}
+      100% { opacity: 0.22; transform: scale(1.1);}
+    }
+    @keyframes pulse2 {
+      0% { opacity: 0.10; transform: scale(1);}
+      100% { opacity: 0.18; transform: scale(1.13);}
+    }
+    .card-title {
+      font-size: 2.5rem;
+      font-weight: 900;
+      margin-bottom: 1.2rem;
+      color: var(--primary);
+      position: relative;
+      z-index: 1;
+      letter-spacing: 1.3px;
+      text-shadow: 0 2px 18px #0059ff55;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.7rem;
+      transition: color var(--transition), text-shadow var(--transition);
+    }
+    .card-title::before {
+      content: "\1F4C4";
+      font-size: 1.7rem;
+      margin-right: 0.4em;
+      filter: drop-shadow(0 2px 12px #0059ff);
+      text-shadow: var(--icon-glow);
+      animation: iconGlow 2.5s infinite alternate;
+      display: inline-block;
+    }
+    .card-desc {
+      font-size: 1.22rem;
+      color: var(--text);
+      margin-bottom: 1.8rem;
+      z-index: 1;
+      position: relative;
+      line-height: 1.85;
+      animation: fadeInUp 1.2s 0.3s both;
+      background: var(--glass);
+      border-radius: 1.3rem;
+      padding: 1.2rem 1rem;
+      box-shadow: 0 2px 12px 0 #0059ff11;
+      border: var(--border);
+      font-weight: 500;
+      letter-spacing: 0.2px;
+      transition: background var(--transition), color var(--transition);
+    }
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(30px);}
+      100% { opacity: 1; transform: translateY(0);}
+    }
+    .card-action {
+      display: flex;
+      justify-content: center;
+      gap: 1.2rem;
+      z-index: 1;
+      position: relative;
+    }
+    .cv-btn {
+      background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+      color: #181a1b !important;
+      text-decoration: none !important;
+      border: 2.5px solid var(--primary);
+      box-shadow: 0 8px 32px 0 var(--primary)44, 0 2px 8px 0 var(--accent)22;
+      padding: 1.3rem 3.5rem;
+      border-radius: 2.7rem;
+      font-size: 1.35rem;
+      font-weight: 900;
+      letter-spacing: 1px;
+      transition: transform 0.22s cubic-bezier(.4,2,.6,1), box-shadow 0.22s, background 0.22s, color 0.22s;
+      outline: none;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.9em;
+      will-change: transform, box-shadow;
+      animation: btnPopIn 1.1s cubic-bezier(.4,2,.6,1);
+    }
+    @keyframes btnPopIn {
+      0% { transform: scale(0.7) translateY(40px); opacity: 0; }
+      70% { transform: scale(1.08) translateY(-8px); opacity: 1; }
+      100% { transform: scale(1) translateY(0); }
+    }
+    .cv-btn:hover, .cv-btn:focus {
+      background: linear-gradient(90deg, var(--accent) 0%, var(--primary) 100%);
+      color: #181a1b !important;
+      transform: scale(1.08) translateY(-2px) rotate(-1deg);
+      box-shadow: 0 12px 40px 0 var(--primary)77, 0 4px 16px 0 var(--accent)44;
+      border-color: var(--accent);
+    }
+    [data-theme="light"] .cv-btn {
+      background: #0059ff !important;
+      color: #fff !important;
+      border: 2.5px solid #0059ff !important;
+      box-shadow: 0 8px 32px 0 #0059ff44, 0 2px 8px 0 #00e0ff22 !important;
+      transition: transform 0.22s cubic-bezier(.4,2,.6,1), box-shadow 0.22s, background 0.22s, color 0.22s;
+    }
+    .cv-btn::after {
+      content: "\27A1";
+      font-size: 1.2em;
+      vertical-align: middle;
+      opacity: 0.8;
+      transition: margin-left 0.2s, opacity 0.2s;
+      margin-left: 0.7em;
+      text-shadow: 0 0 8px var(--accent);
+    }
+    .cv-btn:hover {
+      transform: translateY(-3px) scale(1.07);
+      box-shadow: 0 8px 32px 0 var(--primary)55;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--primary) 100%);
+    }
+    .cv-btn:hover::after {
+      margin-left: 1.2em;
+      opacity: 1;
+    }
+footer {
+  width: 100%;
+  text-align: center;
+  padding: 0.7rem 0 0.7rem 0;
+  font-size: 1.15rem;
+  color: var(--primary);
+  background: linear-gradient(90deg, var(--background) 60%, var(--card-bg) 100%);
+  letter-spacing: 1.2px;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  z-index: 5;
+  border-top: var(--border);
+  transition: background var(--transition), color var(--transition);
+  font-weight: 700;
+  text-shadow: 0 2px 12px var(--primary)33, 0 1px 8px #0059ff22;
+  user-select: text;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1em;
+  box-shadow: 0 -2px 24px 0 var(--primary)11, 0 -1px 8px 0 #0059ff11;
+  border-radius: 1.2rem 1.2rem 0 0;
+  min-height: 3.2rem;
+  backdrop-filter: blur(10px);
+  max-width: 600px;
+  margin: 0 auto 1.2rem auto;
+  left: 50%;
+  transform: translateX(-50%);
+  border: none;
+  border-top: 2.5px solid var(--primary);
+  box-sizing: border-box;
+  animation: footerPopIn 1.1s cubic-bezier(.4,2,.6,1);
+}
+
+@keyframes footerPopIn {
+  0% { opacity: 0; transform: translateY(40px) scale(0.95) translateX(-50%); }
+  70% { opacity: 1; transform: translateY(-8px) scale(1.05) translateX(-50%); }
+  100% { opacity: 1; transform: translateY(0) scale(1) translateX(-50%); }
+}
+
+#footer-contact-label {
+  color: var(--primary);
+  font-weight: 900;
+  letter-spacing: 1.3px;
+  margin-right: 0.3em;
+  font-size: 1.15em;
+  text-shadow: 0 1px 8px var(--primary)22;
+  transition: color var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
+}
+
+#footer-email {
+  color: #181a1b;
+  font-weight: 800;
+  font-size: 1.15em;
+  letter-spacing: 1.1px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color var(--transition), box-shadow var(--transition), background var(--transition);
+  text-shadow: 0 1px 8px var(--accent)22;
+  padding: 0.18em 0.85em;
+  border-radius: 1.2em;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--primary) 100%);
+  box-shadow: 0 2px 12px 0 var(--accent)22;
+  border: none;
+  outline: none;
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+}
+#footer-email:hover, #footer-email:focus {
+  color: #181a1b;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+  box-shadow: 0 4px 24px 0 var(--primary)44;
+  text-decoration: underline wavy var(--primary) 2.5px;
+}
+[data-theme="light"] #footer-email {
+  color: #fff !important;
+  background: #0059ff !important;
+  border: 2.5px solid #0059ff !important;
+  box-shadow: 0 8px 32px 0 #0059ff44, 0 2px 8px 0 #00e0ff22 !important;
+  text-shadow: 0 1px 8px var(--primary)22;
+  font-weight: 900;
+  text-decoration: none !important;
+  transition: none;
+}
+[data-theme="light"] #footer-email:hover, [data-theme="light"] #footer-email:focus {
+  color: #fff !important;
+  background: #0059ff !important;
+  border: 2.5px solid #0059ff !important;
+  box-shadow: 0 8px 32px 0 #0059ff44, 0 2px 8px 0 #00e0ff22 !important;
+  text-decoration: none !important;
+}
+    @media (max-width: 600px) {
+      .container { padding: 1rem 0.2rem 4rem 0.2rem; }
+      .card { padding: 1.2rem 0.7rem; }
+      .card-title { font-size: 1.3rem; }
+      .card-desc { font-size: 1rem; }
+      header { flex-direction: column; gap: 0.7rem; }
+      .controls { gap: 0.5rem; }
+      .cv-btn { font-size: 1rem; padding: 0.7rem 1.2rem; }
+    }
+    @media (max-width: 400px) {
+      .card { padding: 0.7rem 0.2rem; }
+      .card-title { font-size: 1.05rem; }
+      .card-desc { font-size: 0.95rem; }
+      .cv-btn { font-size: 0.95rem; padding: 0.5rem 0.7rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo" id="site-title">Smart Tools</div>
+      <div class="controls">
+        <button class="lang-btn active" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="fr">FR</button>
+        <button class="lang-btn" data-lang="ar">AR</button>
+        <button class="dark-mode-btn" id="darkModeBtn" title="Toggle dark mode" aria-label="Toggle dark mode">
+          <span id="darkModeIcon">🌙</span>
+        </button>
+      </div>
+    </header>
+    <main>
+      <div class="card" id="cvCard">
+        <div class="card-title" id="cvTitle">CV Builder</div>
+        <div class="card-desc" id="cvDesc">
+          Generate a professional CV in easy steps for Canadian or Tunisian standards. Fast, simple, and tailored for your needs!
+        </div>
+        <div class="card-action">
+          <a class="cv-btn" href="cv builder.html">Start Now</a>
+        </div>
+      </div>
+    </main>
+  </div>
+  <footer>
+    <span id="footer-contact-label">Contact :</span>
+    <a id="footer-email" href="mailto:smarttools618@gmail.com" title="Email us">smarttools618@gmail.com</a>
+  </footer>
+  <script>
+    // Language translations
+    const translations = {
+      en: {
+        siteTitle: "Smart Tools",
+        cvTitle: "CV Builder",
+        cvDesc: "Generate a professional CV in easy steps for Canadian or Tunisian standards. Fast, simple, and tailored for your needs!",
+        startNow: "Start Now",
+        contact: "Contact :"
+      },
+      fr: {
+        siteTitle: "Outils Intelligents",
+        cvTitle: "Créateur de CV",
+        cvDesc: "Générez un CV professionnel en quelques étapes pour le Canada ou la Tunisie. Rapide, simple et adapté à vos besoins !",
+        startNow: "Commencer",
+        contact: "Contact :"
+      },
+      ar: {
+        siteTitle: "الأدوات الذكية",
+        cvTitle: "منشئ السيرة الذاتية",
+        cvDesc: "أنشئ سيرة ذاتية احترافية بسهولة للمعايير الكندية أو التونسية. سريع وبسيط ومخصص لاحتياجاتك!",
+        startNow: "ابدأ الآن",
+        contact: "التواصل :"
+      }
+    };
+
+    // Language switcher
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        const lang = this.getAttribute('data-lang');
+        // Do not translate the site title, always keep it as 'Smart Tools'
+        document.getElementById('site-title').textContent = 'Smart Tools';
+        document.getElementById('cvTitle').textContent = translations[lang].cvTitle;
+        document.getElementById('cvDesc').textContent = translations[lang].cvDesc;
+        document.querySelector('.cv-btn').textContent = translations[lang].startNow;
+        document.getElementById('footer-contact-label').textContent = translations[lang].contact;
+        // RTL for Arabic
+        if(lang === 'ar') {
+          document.body.dir = 'rtl';
+          document.body.style.fontFamily = "'Cairo', 'Montserrat', sans-serif";
+          document.getElementById('site-title').style.fontFamily = "'Cairo', 'Montserrat', sans-serif";
+          document.getElementById('cvTitle').style.fontFamily = "'Cairo', 'Montserrat', sans-serif";
+          document.getElementById('cvDesc').style.fontFamily = "'Cairo', 'Montserrat', sans-serif";
+          document.getElementById('footer-contact-label').style.fontFamily = "'Cairo', 'Montserrat', sans-serif";
+        } else {
+          document.body.dir = 'ltr';
+          document.body.style.fontFamily = "'Montserrat', sans-serif";
+          document.getElementById('site-title').style.fontFamily = "'Montserrat', sans-serif";
+          document.getElementById('cvTitle').style.fontFamily = "'Montserrat', sans-serif";
+          document.getElementById('cvDesc').style.fontFamily = "'Montserrat', sans-serif";
+          document.getElementById('footer-contact-label').style.fontFamily = "'Montserrat', sans-serif";
+        }
+      });
+    });
+
+    // Dark mode toggle
+    const darkModeBtn = document.getElementById('darkModeBtn');
+    const darkModeIcon = document.getElementById('darkModeIcon');
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      darkModeIcon.textContent = theme === 'light' ? '☀️' : '🌙';
+      localStorage.setItem('theme', theme);
+    }
+    darkModeBtn.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      setTheme(current === 'dark' ? 'light' : 'dark');
+    });
+    // Load theme from storage
+    (function() {
+      const saved = localStorage.getItem('theme');
+      setTheme(saved || 'dark');
+      // Set initial footer contact label to English
+      document.getElementById('footer-contact-label').textContent = translations['en'].contact;
+    })();
+  </script>
+</body>
+</html>
